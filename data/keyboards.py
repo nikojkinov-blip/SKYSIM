@@ -1,17 +1,16 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardButton
 
-# Твои кастомные эмодзи
-E_SKYSIM = "5283175099703268554"
-E_CHECK = "5343909794149310690"
-E_CROSS = "5210952531676504517"
-E_DOLLAR = "5337049146534665824"
-E_BEELINE = "5469796926272580161"
+# Твои кастомные эмодзи (как числа!)
+E_SKYSIM = 5283175099703268554
+E_CHECK = 5343909794149310690
+E_CROSS = 5210952531676504517
+E_DOLLAR = 5337049146534665824
 
 def start_keyboard():
     builder = InlineKeyboardBuilder()
     builder.add(InlineKeyboardButton(text="АКТИВИРОВАТЬ СИМКУ", callback_data="activate", icon_custom_emoji_id=E_SKYSIM))
-    builder.add(InlineKeyboardButton(text="КУПИТЬ ГОСУСЛУГИ", callback_data="buy_gos", icon_custom_emoji_id="🏛️"))
+    builder.add(InlineKeyboardButton(text="КУПИТЬ ГОСУСЛУГИ", callback_data="buy_gos"))
     builder.add(InlineKeyboardButton(text="МОИ АКТИВАЦИИ", callback_data="my_activations"))
     builder.add(InlineKeyboardButton(text="ТАРИФЫ", callback_data="prices"))
     builder.adjust(1)
