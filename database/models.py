@@ -44,26 +44,63 @@ def init_db():
 
 init_db()
 
-def get_user(uid): return db.fetchone("SELECT * FROM users WHERE user_id=?", (uid,))
+def get_user(uid): 
+    return db.fetchone("SELECT * FROM users WHERE user_id=?", (uid,))
+
 def create_user(uid, uname, fname):
     if not get_user(uid):
-        db.insert('users', {'user_id': uid, 'username': uname or '', 'first_name': fname or '', 'joined_date': datetime.now().isoformat()})
-def ban_user(uid, reason=""): db.update('users', {'banned': 1, 'ban_reason': reason}, 'user_id=?', (uid,))
-def unban_user(uid): db.update('users', {'banned': 0, 'ban_reason': ''}, 'user_id=?', (uid,))
+        db.insert('users', {
+            'user_id': uid, 
+            'username': uname or '', 
+            'first_name': fname or '', 
+            'joined_date': datetime.now().isoformat()
+        })
+
+def ban_user(uid, reason=""): 
+    db.update('users', {'banned': 1, 'ban_reason': reason}, 'user_id=?', (uid,))
+
+def unban_user(uid): 
+    db.update('users', {'banned': 0, 'ban_reason': ''}, 'user_id=?', (uid,))
+
 def is_banned(uid):
     u = get_user(uid)
     return u and u.get('banned')
+
 def add_activation(uid, iccid, atype, count, amount):
-    db.insert('activations', {'user_id': uid, 'iccid': iccid, 'type': atype, 'sims_count': count, 'amount': amount, 'created_at': datetime.now().isoformat()})
-    db.update('users', {'total_activations': get_user(uid)['total_activations']+count, 'total_spent': get_user(uid)['total_spent']+amount}, 'user_id=?', (uid,))
+    db.insert('activations', {
+        'user_id': uid, 'iccid': iccid, 'type': atype,
+        'sims_count': count, 'amount': amount,
+        'created_at': datetime.now().isoformat()
+    })
+    
+    user = get_user(uid)
+    if user:
+        db.update('users', {
+            'total_activations': user['total_activations'] + count,
+            'total_spent': user['total_spent'] + amount
+        }, 'user_id=?', (uid,))
+    else:
+        create_user(uid, '', '')
+        db.update('users', {
+            'total_activations': count,
+            'total_spent': amount
+        }, 'user_id=?', (uid,))
+
 def get_user_activations(uid):
     return db.fetchall("SELECT * FROM activations WHERE user_id=? ORDER BY created_at DESC LIMIT 20", (uid,))
+
 def get_all_activations(limit=50):
     return db.fetchall("SELECT * FROM activations ORDER BY created_at DESC LIMIT ?", (limit,))
+
 def get_users_list(limit=50):
     return db.fetchall("SELECT * FROM users ORDER BY joined_date DESC LIMIT ?", (limit,))
+
 def get_stats():
     u = db.fetchone("SELECT COUNT(*) as c FROM users")
     a = db.fetchone("SELECT COUNT(*) as c FROM activations")
     r = db.fetchone("SELECT SUM(amount) as c FROM activations")
-    return {'users': u['c'] if u else 0, 'activations': a['c'] if a else 0, 'revenue': r['c'] or 0 if r else 0}
+    return {
+        'users': u['c'] if u else 0, 
+        'activations': a['c'] if a else 0, 
+        'revenue': r['c'] or 0 if r else 0
+    }
