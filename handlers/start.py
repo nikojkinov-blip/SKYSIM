@@ -19,35 +19,32 @@ async def start(message: Message):
     
     await message.answer(
         START_TEXT,
-        reply_markup=main_menu()
+        reply_markup=start_keyboard()
     )
-
-# Обработчики кнопок Reply-меню
-@router.message(F.text == "🛰️ Активировать симку")
-async def activate_btn(message: Message):
-    await message.answer("📱 Выберите способ:", reply_markup=type_keyboard())
-
-@router.message(F.text == "🏛️ Купить Госуслуги")
-async def gos_btn(message: Message):
-    await message.answer(f"🏛️ Аккаунт Госуслуг\n💰 {PRICE_GOS}₽", reply_markup=payment_keyboard(PRICE_GOS, "gos"))
-
-@router.message(F.text == "📋 Мои активации")
-async def activations_btn(message: Message):
-    from database.models import get_user_activations
-    acts = get_user_activations(message.from_user.id)
-    if not acts:
-        await message.answer("📋 Нет активаций.", reply_markup=main_menu()); return
-    text = "📋 <b>ВАШИ АКТИВАЦИИ:</b>\n\n"
-    for a in acts[:10]:
-        text += f"#{a['id']} | {a['type']} | {a['amount']}₽\n"
-    await message.answer(text, reply_markup=main_menu())
-
-@router.message(F.text == "💰 Тарифы")
-async def prices_btn(message: Message):
-    await message.answer(PRICES_TEXT, reply_markup=main_menu())
 
 @router.callback_query(F.data == "start")
 async def back_start(call: CallbackQuery):
-    await call.message.answer(START_TEXT, reply_markup=main_menu())
-    await call.message.delete()
+    if is_banned(call.from_user.id):
+        await call.answer("🚫 Заблокированы!"); return
+    await call.message.edit_text(START_TEXT, reply_markup=start_keyboard())
+    await call.answer()
+
+@router.callback_query(F.data == "prices")
+async def prices(call: CallbackQuery):
+    await call.message.edit_text(
+        PRICES_TEXT,
+        reply_markup=InlineKeyboardBuilder().button(text="❌ НАЗАД", callback_data="start").as_markup()
+    )
+    await call.answer()
+
+@router.callback_query(F.data == "my_activations")
+async def my_activations(call: CallbackQuery):
+    from database.models import get_user_activations
+    acts = get_user_activations(call.from_user.id)
+    if not acts:
+        await call.message.edit_text("📋 Нет активаций.", reply_markup=InlineKeyboardBuilder().button(text="❌ НАЗАД", callback_data="start").as_markup()); return
+    text = "📋 <b>ВАШИ АКТИВАЦИИ:</b>\n\n"
+    for a in acts[:10]:
+        text += f"#{a['id']} | {a['type']} | {a['amount']}₽\n"
+    await call.message.edit_text(text, reply_markup=InlineKeyboardBuilder().button(text="❌ НАЗАД", callback_data="start").as_markup())
     await call.answer()
