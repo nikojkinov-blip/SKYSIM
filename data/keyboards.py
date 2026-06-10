@@ -1,26 +1,30 @@
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 # Твои кастомные эмодзи
-E_BEELINE = "5469796926272580161"
-E_DOLLAR = "5337049146534665824"
-E_BUY = "4960849297470915707"
+E_SKYSIM = "5283175099703268554"
 E_CHECK = "5343909794149310690"
 E_CROSS = "5210952531676504517"
+E_DOLLAR = "5337049146534665824"
+E_BUY = "4960849297470915707"
+E_BEELINE = "5469796926272580161"
 E_FIRE = "5463154755054349837"
-E_LIGHTNING = "5224607267797606837"
-E_SKYSIM = "5283175099703268554"
 
 def e(id): return f"<tg-emoji emoji-id='{id}'>...</tg-emoji>"
 
-def start_keyboard():
-    builder = InlineKeyboardBuilder()
-    builder.button(text=f"{e(E_SKYSIM)} АКТИВИРОВАТЬ СИМКУ", callback_data="activate")
-    builder.button(text=f"🏛️ КУПИТЬ ГОСУСЛУГИ", callback_data="buy_gos")
-    builder.button(text=f"📋 МОИ АКТИВАЦИИ", callback_data="my_activations")
-    builder.button(text=f"💰 ТАРИФЫ", callback_data="prices")
-    builder.adjust(1)
-    return builder.as_markup()
+# ==================== ГЛАВНОЕ МЕНЮ (Reply) ====================
+def main_menu():
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text=f"{e(E_SKYSIM)} Активировать симку")],
+            [KeyboardButton(text=f"🏛️ Купить Госуслуги")],
+            [KeyboardButton(text=f"📋 Мои активации")],
+            [KeyboardButton(text=f"💰 Тарифы")],
+        ],
+        resize_keyboard=True
+    )
 
+# ==================== Inline-кнопки для остального ====================
 def type_keyboard():
     builder = InlineKeyboardBuilder()
     builder.button(text=f"📸 ЗАГРУЗИТЬ ФОТО", callback_data="type_photo")
@@ -60,4 +64,9 @@ def admin_keyboard():
 def back_admin():
     builder = InlineKeyboardBuilder()
     builder.button(text=f"{e(E_CROSS)} НАЗАД", callback_data="admin")
+    return builder.as_markup()
+
+def cancel_keyboard():
+    builder = InlineKeyboardBuilder()
+    builder.button(text=f"{e(E_CROSS)} ОТМЕНА", callback_data="start")
     return builder.as_markup()
