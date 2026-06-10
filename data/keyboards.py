@@ -1,11 +1,11 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardButton
 
-# Твои кастомные эмодзи (как числа!)
-E_SKYSIM = 5283175099703268554
-E_CHECK = 5343909794149310690
-E_CROSS = 5210952531676504517
-E_DOLLAR = 5337049146534665824
+# Твои кастомные эмодзи (как СТРОКИ!)
+E_SKYSIM = "5283175099703268554"
+E_CHECK = "5343909794149310690"
+E_CROSS = "5210952531676504517"
+E_DOLLAR = "5337049146534665824"
 
 def start_keyboard():
     builder = InlineKeyboardBuilder()
